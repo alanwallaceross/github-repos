@@ -1,8 +1,17 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { render, screen, waitFor } from "@testing-library/react";
+import App from "./App";
 
-test('renders learn react link', () => {
+test("renders loading on mount", async () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const loading = screen.getByText(/loading/i);
+  expect(loading).toBeInTheDocument();
+});
+
+test("renders header and table after fetching", async () => {
+  render(<App />);
+  const header = await waitFor(() => screen.getByText(/github repo list/i));
+  await waitFor(() => expect(header).toBeInTheDocument());
+  screen.debug();
+  const table = screen.getByRole("table");
+  expect(table).toBeInTheDocument();
 });

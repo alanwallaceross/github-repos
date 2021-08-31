@@ -5,7 +5,7 @@ import RepoTable from "../components/RepoTable";
 const initialState = {
   status: "idle",
   error: null,
-  data: [],
+  repos: [],
   page: 0,
 };
 
@@ -27,14 +27,24 @@ function RepoListPage() {
   const [repoState, dispatch] = React.useReducer(repoReducer, initialState);
 
   React.useEffect(() => {
-    dispatch({ type: "fetching" });
-    getRepos()
-      .then((data) => {
-        dispatch({ type: "success", payload: data });
-      })
-      .catch((error) => {
-        dispatch({ type: "error", payload: error });
-      });
+    let isCancelled = false;
+    if (!isCancelled) {
+      dispatch({ type: "fetching" });
+      getRepos()
+        .then((data) => {
+          if (data.message) {
+            dispatch({ type: "error", payload: data });
+          } else {
+            dispatch({ type: "success", payload: data });
+          }
+        })
+        .catch((error) => {
+          dispatch({ type: "error", payload: error });
+        });
+    }
+    return () => {
+      isCancelled = true;
+    };
   }, []);
 
   if (repoState.status === "idle") {
@@ -46,10 +56,10 @@ function RepoListPage() {
   }
 
   if (repoState.status === "error") {
-    return repoState.error;
+    return repoState.error.message;
   }
 
-  if (repoState.status === "success") {
+  if (repoState.status === "success" && repoState.repos.length > 0) {
     return (
       <>
         <h1>Github Repo List</h1>
