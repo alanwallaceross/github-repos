@@ -27,23 +27,25 @@ function RepoListPage() {
   const [repoState, dispatch] = React.useReducer(repoReducer, initialState);
 
   React.useEffect(() => {
-    let isCancelled = false;
-    if (!isCancelled) {
-      dispatch({ type: "fetching" });
-      getRepos()
-        .then((data) => {
+    let isMounted = true;
+    dispatch({ type: "fetching" });
+    getRepos()
+      .then((data) => {
+        if (isMounted) {
           if (data.message) {
             dispatch({ type: "error", payload: data });
           } else {
             dispatch({ type: "success", payload: data });
           }
-        })
-        .catch((error) => {
+        }
+      })
+      .catch((error) => {
+        if (isMounted) {
           dispatch({ type: "error", payload: error });
-        });
-    }
+        }
+      });
     return () => {
-      isCancelled = true;
+      isMounted = false;
     };
   }, []);
 
