@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import App from "./App";
 
 beforeEach(async () => {
@@ -10,10 +10,23 @@ beforeEach(async () => {
 });
 
 test("displays 'Name', 'Owner' and 'Description' within table header", async () => {
-  // Unfinished, I exceeded the API rate limit and couldn't test anymore
   const tableHeader = screen.getByTestId("tableHeader");
   expect(tableHeader).toBeInTheDocument();
-  const columnHeaders = screen.getAllByRole("columnheader");
+  const nameHeader = await within(tableHeader).findByRole("columnheader", {
+    name: "Name",
+  });
+  const ownerHeader = await within(tableHeader).findByRole("columnheader", {
+    name: "Owner",
+  });
+  const descriptionHeader = await within(tableHeader).findByRole(
+    "columnheader",
+    {
+      name: "Description",
+    }
+  );
+  expect(nameHeader).toBeInTheDocument();
+  expect(ownerHeader).toBeInTheDocument();
+  expect(descriptionHeader).toBeInTheDocument();
 });
 
 test("displays 11 rows including table header row", async () => {
